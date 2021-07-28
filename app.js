@@ -5,6 +5,8 @@ const { celebrate, Joi, errors } = require('celebrate');
 const { MONGODB_URL, MONGODB_OPTIONS } = require('./utils/constants');
 const {
   signUp,
+  signIn,
+  signOut,
 } = require('./controllers/users');
 
 const app = express();
@@ -21,6 +23,13 @@ app.post('/signup', celebrate({
     name: Joi.string().required().min(2).max(30),
   }),
 }), signUp);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), signIn);
+app.post('/signout', signOut);
 
 app.use(errors());
 app.use((err, req, res, next) => {
