@@ -77,9 +77,27 @@ const getUserProfile = async (req, res, next) => {
   } catch (err) { return next(err); }
 };
 
+const updateUserProfile = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    const { email, name } = req.body;
+    const user = await User.findByIdAndUpdate(_id, { email, name }, {
+      new: true,
+      runValidators: true,
+    });
+    if (!user) { return next(new NotFoundErr('Пользователь не найден')); }
+
+    return res.send(user);
+  } catch (err) {
+    if (err.name === 'ValidationError') { return next(new BadReqErr('Переданы некорректные данные для обновления профиля пользователя')); }
+    return next(err);
+  }
+};
+
 module.exports = {
   signUp,
   signIn,
   signOut,
   getUserProfile,
+  updateUserProfile,
 };
