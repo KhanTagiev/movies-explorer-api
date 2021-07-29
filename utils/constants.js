@@ -15,6 +15,13 @@ const ERR_CODE_INT_SER = 500;
 
 const SECRET_CODE = '$2b$12$CmlwbfGcHhRkZZQGC5ymEerYSgHdPgIL4Chvg.GMdw8G3V1DeGFfq';
 
+const ALLOWED_CORS = [
+  'http://localhost:3000',
+];
+
+const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
+
+
 module.exports = {
   MONGODB_URL,
   MONGODB_OPTIONS,
@@ -25,4 +32,6 @@ module.exports = {
   ERR_CODE_CONFLICT,
   ERR_CODE_INT_SER,
   SECRET_CODE,
+  ALLOWED_CORS,
+  DEFAULT_ALLOWED_METHODS
 };
