@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const UserRouter = require('./routes/users');
+const MovieRouter = require('./routes/movies');
 const authMiddleware = require('./middlewares/auth');
 
 const { MONGODB_URL, MONGODB_OPTIONS } = require('./utils/constants');
@@ -21,6 +22,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/users/', authMiddleware, UserRouter);
+app.use('/movies/', authMiddleware, MovieRouter);
+
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -41,7 +44,7 @@ app.use((err, req, res, next) => {
   const { statusCode = 500, message, name } = err;
   res.status(statusCode).send({
     message: statusCode === 500
-      ? { name, message, custom: 'На сервере произошла ошибка' }
+      ? 'На сервере произошла ошибка'
       : message,
   });
 });
