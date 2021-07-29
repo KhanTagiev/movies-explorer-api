@@ -47,8 +47,7 @@ const signIn = async (req, res, next) => {
     res.cookie('jwt', token, {
       maxAge: 10080000,
       httpOnly: true,
-      sameSite: 'none',
-      secure: true,
+      sameSite: true,
     });
 
     return res.send({ token });
@@ -61,11 +60,20 @@ const signOut = async (req, res, next) => {
   try {
     res.clearCookie('jwt', {
       httpOnly: true,
-      sameSite: 'none',
-      secure: true,
+      sameSite: true,
     });
 
     return res.send('Токен удален');
+  } catch (err) { return next(err); }
+};
+
+const getUserProfile = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    const user = await User.findById(_id);
+    if (!user) { return next(new NotFoundErr('Пользователь не найден')); }
+
+    return res.send(user);
   } catch (err) { return next(err); }
 };
 
@@ -73,4 +81,5 @@ module.exports = {
   signUp,
   signIn,
   signOut,
+  getUserProfile,
 };
