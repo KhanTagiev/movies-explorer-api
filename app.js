@@ -11,6 +11,7 @@ const {
 const UserRouter = require('./routes/users');
 const MovieRouter = require('./routes/movies');
 const corsMiddleware = require('./middlewares/cors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const authMiddleware = require('./middlewares/auth');
 const NotFoundErr = require('./errors/not-found-err');
 
@@ -19,6 +20,7 @@ const { PORT = 3000 } = process.env;
 
 mongoose.connect(MONGODB_URL, MONGODB_OPTIONS);
 
+app.use(requestLogger);
 app.use(corsMiddleware);
 app.use(express.json());
 app.use(cookieParser());
@@ -50,6 +52,7 @@ app.use((req, res, next) => {
   next(new NotFoundErr('Страница не найдена'));
 });
 
+app.use(errorLogger);
 app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message, name } = err;
