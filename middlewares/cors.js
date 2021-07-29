@@ -1,4 +1,4 @@
-const { ALLOWED_CORS, DEFAULT_ALLOWED_METHODS } = require('../utils/constants')
+const { ALLOWED_CORS, DEFAULT_ALLOWED_METHODS } = require('../utils/constants');
 
 module.exports = (req, res, next) => {
   const { origin } = req.headers;
@@ -17,4 +17,4 @@ module.exports = (req, res, next) => {
     return;
   }
   next();
-}
+};
