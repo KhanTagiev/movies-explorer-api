@@ -1,21 +1,15 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const helmet = require("helmet");
+const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const { celebrate, Joi, errors } = require('celebrate');
+const { errors } = require('celebrate');
+
 const { MONGODB_URL, MONGODB_OPTIONS } = require('./utils/constants');
-const {
-  signUp,
-  signIn,
-  signOut,
-} = require('./controllers/users');
-const UserRouter = require('./routes/users');
-const MovieRouter = require('./routes/movies');
 const rateLimiterMiddleware = require('./middlewares/rate-limiter');
 const corsMiddleware = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const authMiddleware = require('./middlewares/auth');
+const indexRouter = require('./routes/index');
 const NotFoundErr = require('./errors/not-found-err');
 
 const app = express();
@@ -30,29 +24,8 @@ app.use(corsMiddleware);
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/users/', authMiddleware, UserRouter);
-app.use('/movies/', authMiddleware, MovieRouter);
+app.use('/', indexRouter);
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().required().min(2).max(30),
-  }),
-}), signUp);
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), signIn);
-app.post('/signout', signOut);
-
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
 app.use((req, res, next) => {
   next(new NotFoundErr('Страница не найдена'));
 });
