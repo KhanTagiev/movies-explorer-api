@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 const BadReqErr = require('../errors/bad-req-err');
 const ConflictErr = require('../errors/conflict-err');
 const NotFoundErr = require('../errors/not-found-err');
@@ -42,7 +44,7 @@ const signIn = async (req, res, next) => {
 
     if (!isPasswordConfirm) { return next(new UnAuthErr('Передан неверный логин или пароль')); }
 
-    const token = jwt.sign({ _id: user._id }, SECRET_CODE, { expiresIn: '7d' });
+    const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : SECRET_CODE, { expiresIn: '7d' });
 
     res.cookie('jwt', token, {
       maxAge: 10080000,
