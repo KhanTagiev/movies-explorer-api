@@ -91,6 +91,7 @@ const updateUserProfile = async (req, res, next) => {
 
     return res.send(user);
   } catch (err) {
+    if (err.name === 'MongoError' && err.code === 11000) { return next(new ConflictErr('Данный Email уже занят другим пользователем')); }
     if (err.name === 'ValidationError') { return next(new BadReqErr('Переданы некорректные данные для обновления профиля пользователя')); }
     return next(err);
   }
