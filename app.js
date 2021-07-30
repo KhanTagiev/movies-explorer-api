@@ -11,6 +11,7 @@ const {
 } = require('./controllers/users');
 const UserRouter = require('./routes/users');
 const MovieRouter = require('./routes/movies');
+const rateLimiterMiddleware = require('./middlewares/rate-limiter');
 const corsMiddleware = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const authMiddleware = require('./middlewares/auth');
@@ -22,6 +23,7 @@ const { PORT = 3000 } = process.env;
 mongoose.connect(MONGODB_URL, MONGODB_OPTIONS);
 
 app.use(requestLogger);
+app.use(rateLimiterMiddleware);
 app.use(corsMiddleware);
 app.use(express.json());
 app.use(cookieParser());
