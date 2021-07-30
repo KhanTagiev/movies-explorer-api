@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const helmet = require("helmet");
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const { MONGODB_URL, MONGODB_OPTIONS } = require('./utils/constants');
@@ -22,6 +23,7 @@ const { PORT = 3000 } = process.env;
 
 mongoose.connect(MONGODB_URL, MONGODB_OPTIONS);
 
+app.use(helmet());
 app.use(requestLogger);
 app.use(rateLimiterMiddleware);
 app.use(corsMiddleware);
