@@ -9,8 +9,6 @@
         "sourceType": "module"
     },
     "rules": {
-        "no-underscore-dangle": [1, { "allow": ["_id"] }],
-        "no-unused-vars": "off",
-        "no-console": "off"
+        "no-underscore-dangle": [1, { "allow": ["_id"] }]
     }
 }

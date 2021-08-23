@@ -8,7 +8,9 @@ const BadReqErr = require('../errors/bad-req-err');
 const ConflictErr = require('../errors/conflict-err');
 const NotFoundErr = require('../errors/not-found-err');
 const UnAuthErr = require('../errors/un-auth-err');
-const { SECRET_CODE } = require('../utils/constants');
+const {
+  SECRET_CODE, MES_NOT_FOUND_USER, MES_INVALID_DATA, MES_DUPLICATE_ERR, MES_AUTH_ERR, MES_TOKEN_DEL,
+} = require('../utils/constants');
 
 const signUp = async (req, res, next) => {
   try {
@@ -27,8 +29,8 @@ const signUp = async (req, res, next) => {
       name: user.name,
     });
   } catch (err) {
-    if (err.name === 'ValidationError') { return next(new BadReqErr('Переданы некорректные данные для создания пользователя')); }
-    if (err.name === 'MongoError' && err.code === 11000) { return next(new ConflictErr('Пользователь с таким Email уже существует')); }
+    if (err.name === 'ValidationError') { return next(new BadReqErr(MES_INVALID_DATA)); }
+    if (err.name === 'MongoError' && err.code === 11000) { return next(new ConflictErr(MES_DUPLICATE_ERR)); }
     return next(err);
   }
 };
@@ -38,11 +40,11 @@ const signIn = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select('+password');
 
-    if (!user) { return next(new UnAuthErr('Передан неверный логин или пароль')); }
+    if (!user) { return next(new UnAuthErr(MES_AUTH_ERR)); }
 
     const isPasswordConfirm = bcrypt.compareSync(password, user.password);
 
-    if (!isPasswordConfirm) { return next(new UnAuthErr('Передан неверный логин или пароль')); }
+    if (!isPasswordConfirm) { return next(new UnAuthErr(MES_AUTH_ERR)); }
 
     const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : SECRET_CODE, { expiresIn: '7d' });
 
@@ -65,7 +67,7 @@ const signOut = async (req, res, next) => {
       sameSite: true,
     });
 
-    return res.send('Токен удален');
+    return res.send(MES_TOKEN_DEL);
   } catch (err) { return next(err); }
 };
 
@@ -73,7 +75,7 @@ const getUserProfile = async (req, res, next) => {
   try {
     const { _id } = req.user;
     const user = await User.findById(_id);
-    if (!user) { return next(new NotFoundErr('Пользователь не найден')); }
+    if (!user) { return next(new NotFoundErr(MES_NOT_FOUND_USER)); }
 
     return res.send(user);
   } catch (err) { return next(err); }
@@ -87,12 +89,12 @@ const updateUserProfile = async (req, res, next) => {
       new: true,
       runValidators: true,
     });
-    if (!user) { return next(new NotFoundErr('Пользователь не найден')); }
+    if (!user) { return next(new NotFoundErr(MES_NOT_FOUND_USER)); }
 
     return res.send(user);
   } catch (err) {
-    if (err.name === 'MongoError' && err.code === 11000) { return next(new ConflictErr('Данный Email уже занят другим пользователем')); }
-    if (err.name === 'ValidationError') { return next(new BadReqErr('Переданы некорректные данные для обновления профиля пользователя')); }
+    if (err.name === 'MongoError' && err.code === 11000) { return next(new ConflictErr(MES_DUPLICATE_ERR)); }
+    if (err.name === 'ValidationError') { return next(new BadReqErr(MES_INVALID_DATA)); }
     return next(err);
   }
 };

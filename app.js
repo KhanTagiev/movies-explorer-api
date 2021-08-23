@@ -5,17 +5,24 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
 
-const { MONGODB_URL, MONGODB_OPTIONS } = require('./utils/constants');
+const { MONGODB_URL, MONGODB_OPTIONS } = require('./utils/mongodb_config');
+const { MES_SER_ERR } = require('./utils/constants');
 const rateLimiterMiddleware = require('./middlewares/rate-limiter');
 const corsMiddleware = require('./middlewares/cors');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const indexRouter = require('./routes/index');
-const NotFoundErr = require('./errors/not-found-err');
 
 const app = express();
 const { PORT = 3000 } = process.env;
 
-mongoose.connect(MONGODB_URL, MONGODB_OPTIONS);
+async function appStart() {
+  try {
+    app.listen(PORT);
+    await mongoose.connect(MONGODB_URL, MONGODB_OPTIONS);
+  } catch (err) {
+    throw new Error(err);
+  }
+}
 
 app.use(helmet());
 app.use(requestLogger);
@@ -26,21 +33,16 @@ app.use(cookieParser());
 
 app.use('/', indexRouter);
 
-app.use((req, res, next) => {
-  next(new NotFoundErr('Страница не найдена'));
-});
-
 app.use(errorLogger);
 app.use(errors());
 app.use((err, req, res, next) => {
-  const { statusCode = 500, message, name } = err;
+  const { statusCode = 500, message } = err;
   res.status(statusCode).send({
     message: statusCode === 500
-      ? 'На сервере произошла ошибка'
+      ? MES_SER_ERR
       : message,
   });
+  next();
 });
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+appStart();
