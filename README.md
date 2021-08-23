@@ -17,3 +17,8 @@
 `npx eslint .` — запускает проверку на ошибки eslint-ом  
 `npx eslint . --fix` — запускает исправление ошибок eslint-ом
 
+##  Адрес бэкенд сервера
+
+https://api.movies.khan.nomoredomains.monster/
+
+IP-адрес: 84.252.137.91
