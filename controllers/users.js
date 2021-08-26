@@ -65,7 +65,8 @@ const signOut = async (req, res, next) => {
   try {
     res.clearCookie('jwt', {
       httpOnly: true,
-      sameSite: true,
+      sameSite: 'none',
+      secure: true,
     });
 
     return res.send(MES_TOKEN_DEL);
